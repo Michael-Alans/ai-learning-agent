@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Learning Agent</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f9fafb;
+display:flex;
+justify-content:center;
+padding:40px;
+}
+
+.container{
+width:100%;
+max-width:520px;
+}
+
+/* Title */
+
+.title{
+text-align:center;
+margin-bottom:25px;
+}
+
+.title h1{
+color:#111;
+}
+
+.title p{
+color:#666;
+font-size:14px;
+}
+
+/* Card */
+
+.card{
+background:white;
+padding:30px;
+border-radius:14px;
+box-shadow:0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Input */
+
+label{
+display:block;
+font-weight:bold;
+font-size:14px;
+margin-bottom:6px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-bottom:18px;
+border:1px solid #ddd;
+border-radius:8px;
+font-size:14px;
+transition:0.2s;
+}
+
+input:focus{
+border-color:#25D366;
+outline:none;
+box-shadow:0 0 0 2px rgba(37,211,102,0.2);
+}
+
+/* Button */
+
+button{
+width:100%;
+padding:14px;
+background:#25D366;
+color:white;
+border:none;
+border-radius:10px;
+font-weight:bold;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#20ba58;
+}
+
+button:disabled{
+opacity:0.6;
+cursor:not-allowed;
+}
+
+/* Error */
+
+.error{
+margin-top:20px;
+background:#ffecec;
+border:1px solid #ffbdbd;
+padding:15px;
+border-radius:8px;
+color:#c00;
+}
+
+/* Result Card */
+
+.result-section{
+margin-top:30px;
+display:none;
+}
+
+.result-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+
+.result-card h3{
+color:#25D366;
+}
+
+ul{
+padding-left:20px;
+}
+
+.confidence{
+margin-top:15px;
+font-size:14px;
+color:#444;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">
+<h1>AI Learning Recommendation Agent</h1>
+<p>Personalized learning path powered by AI</p>
+</div>
+
+<div class="card">
+
+<form id="agentForm">
+
+<label>Interest</label>
+<input id="interest" placeholder="AI, Robotics, Web Development" required/>
+
+<label>Skill Level</label>
+<input id="skill" placeholder="Beginner, Intermediate, Advanced" required/>
+
+<label>Goal</label>
+<input id="goal" placeholder="Build startup, Get job, Learn fundamentals" required/>
+
+<button id="submitBtn">Get Recommendation</button>
+
+</form>
+
+<div id="errorBox" class="error" style="display:none"></div>
+
+</div>
+
+<div class="result-section" id="resultSection">
+
+<div class="result-card" id="resultBox"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const form=document.getElementById("agentForm");
+const btn=document.getElementById("submitBtn");
+const errorBox=document.getElementById("errorBox");
+const resultSection=document.getElementById("resultSection");
+const resultBox=document.getElementById("resultBox");
+
+form.addEventListener("submit", async e=>{
+e.preventDefault();
+
+btn.disabled=true;
+btn.textContent="Thinking...";
+
+errorBox.style.display="none";
+resultSection.style.display="none";
+
+try{
+
+const interest=document.getElementById("interest").value;
+const skill=document.getElementById("skill").value;
+const goal=document.getElementById("goal").value;
+
+const response=await fetch(
+"http://localhost:3000/agent/recommend",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+interest,
+skill,
+goal
+})
+}
+);
+
+if(!response.ok){
+throw new Error("Server error "+response.status);
+}
+
+const data=await response.json();
+
+/* Render Smart UI */
+
+resultBox.innerHTML=`
+<h3>🎯 ${data.recommended_path || ""}</h3>
+
+<p>${data.reason || ""}</p>
+
+<h4>🚀 Next Steps</h4>
+
+<ul>
+${(data.next_steps||[])
+.map(step=>`<li>${step}</li>`)
+.join("")}
+</ul>
+
+<div class="confidence">
+⭐ Recommendation Confidence: ${
+data.confidence_score ? data.confidence_score+"%" : "N/A"
+}
+</div>
+`;
+
+resultSection.style.display="block";
+
+}catch(err){
+
+errorBox.style.display="block";
+errorBox.textContent=err.message;
+
+}finally{
+
+btn.disabled=false;
+btn.textContent="Get Recommendation";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
