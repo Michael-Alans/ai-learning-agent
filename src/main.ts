@@ -6,5 +6,6 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(process.env.PORT ?? 3000);
+   app.enableCors("https://ai-learning-agent-cayg.onrender.com");
 }
 bootstrap();
