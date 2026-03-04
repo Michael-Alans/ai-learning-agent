@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // ✅ Enable CORS BEFORE listening
   app.enableCors({
-    origin: "https://ai-learning-agent-cayg.onrender.com",  
+    origin: "https://ai-learning-agent-two.vercel.app",  
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   });
 
